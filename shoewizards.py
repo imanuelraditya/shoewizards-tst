@@ -99,14 +99,6 @@ else :
 
     @app.post('/consultations')
     async def add_consultation(customerid: int, shoeid: int):
-        global consultationid
-
-        query = ("SELECT * FROM consultations")
-        cursor.execute(query)
-        result = cursor.fetchall()
-        if not result :
-            consultationid = 1
-
         query = ("SELECT * FROM consultations WHERE customerid = %s AND shoeid = %s")
         cursor.execute(query, (customerid, shoeid))
         result = cursor.fetchall()
@@ -133,6 +125,18 @@ else :
                         return "No matching products found for the shoe type."
                     else :
                         for product in result:
+                            global consultationid
+                            query = ("SELECT * FROM consultations")
+                            cursor.execute(query)
+                            result = cursor.fetchall()
+                            if not result :
+                                consultationid = 1
+                            else :
+                                query = ("SELECT MAX(consultationid) FROM consultations")
+                                cursor.execute(query)
+                                result = cursor.fetchall()
+                                consultationid = result[0][0] + 1
+
                             productid = product[0]
                             consultdate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             query = ("INSERT INTO consultations (consultationid, customerid, shoeid, productid, consultdate) VALUES (%s, %s, %s, %s, %s)")
@@ -202,4 +206,3 @@ else :
             return "Product ID "+str(productid)+" deleted."
         else :
             return "Product ID "+str(productid)+" does not exist."
-        
