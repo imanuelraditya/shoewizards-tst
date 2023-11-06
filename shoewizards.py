@@ -80,17 +80,22 @@ else :
         return result
     
     @app.post('/customers')
-    async def add_customer(customerid: int, firstname: str, lastname: str, phonenumber: str, address: str, email: str):
-        query = ("SELECT * FROM customers WHERE customerid = %s")
-        cursor.execute(query, (customerid,))
+    async def add_customer(firstname: str, lastname: str, phonenumber: str, address: str, email: str):
+        query = ("SELECT * FROM customers")
+        cursor.execute(query)
         result = cursor.fetchall()
-        if result :
-            return "Customer ID "+str(customerid)+" exists."
+        if not result :
+            customerid = 1
         else :
-            query = ("INSERT INTO customers (customerid, firstname, lastname, phonenumber, address, email) VALUES (%s, %s, %s, %s, %s, %s)")
-            cursor.execute(query, (customerid, firstname, lastname, phonenumber, address, email))
-            conn.commit()
-            return "Customer ID "+str(customerid)+" added."
+            query = ("SELECT MAX(customerid) FROM customers")
+            cursor.execute(query)
+            result = cursor.fetchall()
+            customerid = result[0][0] + 1
+
+        query = ("INSERT INTO customers (customerid, firstname, lastname, phonenumber, address, email) VALUES (%s, %s, %s, %s, %s, %s)")
+        cursor.execute(query, (customerid, firstname, lastname, phonenumber, address, email))
+        conn.commit()
+        return "Customer ID "+str(customerid)+" added."
 
     @app.post('/consultations')
     async def add_consultation(customerid: int, shoeid: int):
@@ -137,30 +142,40 @@ else :
                         return "Consultation for Customer ID "+str(customerid)+" and Shoe ID "+str(shoeid)+" added."
 
     @app.post('/products')
-    async def add_product(productid: int, productname: str, productdescription: str, price: float, stock: int, producttype: str):
-        query = ("SELECT * FROM products WHERE productid = %s")
-        cursor.execute(query, (productid,))
+    async def add_product(productname: str, productdescription: str, price: float, stock: int, producttype: str):
+        query = ("SELECT * FROM products")
+        cursor.execute(query)
         result = cursor.fetchall()
-        if result :
-            return "Product ID "+str(productid)+" exists."
+        if not result :
+            productid = 1
         else :
-            query = ("INSERT INTO products (productid, productname, productdescription, price, stock, producttype) VALUES (%s, %s, %s, %s, %s, %s)")
-            cursor.execute(query, (productid, productname, productdescription, price, stock, producttype))
-            conn.commit()
-            return "Product ID "+str(productid)+" added."
+            query = ("SELECT MAX(productid) FROM products")
+            cursor.execute(query)
+            result = cursor.fetchall()
+            productid = result[0][0] + 1
+
+        query = ("INSERT INTO products (productid, productname, productdescription, price, stock, producttype) VALUES (%s, %s, %s, %s, %s, %s)")
+        cursor.execute(query, (productid, productname, productdescription, price, stock, producttype))
+        conn.commit()
+        return "Product ID "+str(productid)+" added."
         
     @app.post('/shoes')
-    async def add_shoe(shoeid: int, shoetype: str, shoesize: int, shoecolor: str, shoebrand: str, initialcondition: str):
-        query = ("SELECT * FROM shoes WHERE shoeid = %s")
-        cursor.execute(query, (shoeid,))
+    async def add_shoe(shoetype: str, shoesize: int, shoecolor: str, shoebrand: str, initialcondition: str):
+        query = ("SELECT * FROM shoes")
+        cursor.execute(query)
         result = cursor.fetchall()
-        if result :
-            return "Shoe ID "+str(shoeid)+" exists."
+        if not result :
+            shoeid = 1
         else :
-            query = ("INSERT INTO shoes (shoeid, shoetype, shoesize, shoecolor, shoebrand, initialcondition) VALUES (%s, %s, %s, %s, %s, %s)")
-            cursor.execute(query, (shoeid, shoetype, shoesize, shoecolor, shoebrand, initialcondition))
-            conn.commit()
-            return "Shoe ID "+str(shoeid)+" added."
+            query = ("SELECT MAX(shoeid) FROM shoes")
+            cursor.execute(query)
+            result = cursor.fetchall()
+            shoeid = result[0][0] + 1
+
+        query = ("INSERT INTO shoes (shoeid, shoetype, shoesize, shoecolor, shoebrand, initialcondition) VALUES (%s, %s, %s, %s, %s, %s)")
+        cursor.execute(query, (shoeid, shoetype, shoesize, shoecolor, shoebrand, initialcondition))
+        conn.commit()
+        return "Shoe ID "+str(shoeid)+" added."
         
     @app.put('/products')
     async def update_product(productid: int, productname: str, productdescription: str, price: float, stock: int, producttype: str):
