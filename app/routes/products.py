@@ -31,7 +31,7 @@ async def read_product(productid: int):
     
 @router.post('/products')
 async def add_product(producttype: str, productbrand: str, productcolor: str, productsize: int, productcondition: str, user: Annotated[User, Depends(get_current_user)]):
-    if user[8] != "Admin" :
+    if user[8].lower() != "admin" :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an admin.")
     query = ("SELECT * FROM products")
     cursor.execute(query)
@@ -51,7 +51,7 @@ async def add_product(producttype: str, productbrand: str, productcolor: str, pr
 
 @router.put('/products/{productid}')
 async def update_product(productid: int, producttype: str, productbrand: str, productcolor: str, productsize: int, productcondition: str, user: Annotated[User, Depends(get_current_user)]):
-    if user[8] != "Admin" :
+    if user[8].lower() != "admin" :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an admin.")
     query = ("SELECT * FROM products WHERE productid = %s")
     cursor.execute(query, (productid,))
@@ -66,7 +66,7 @@ async def update_product(productid: int, producttype: str, productbrand: str, pr
     
 @router.delete('/products/{productid}')
 async def delete_product(productid: int, user: Annotated[User, Depends(get_current_user)]):
-    if user[8] != "Admin" :
+    if user[8].lower() != "admin" :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an admin.")
     query = ("SELECT * FROM products WHERE productid = %s")
     cursor.execute(query, (productid,))

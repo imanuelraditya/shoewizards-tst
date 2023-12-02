@@ -14,9 +14,9 @@ router = APIRouter(
 consultations = {}
 
 @router.get('/consultations')
-async def read_customer_consultations(customerid: int, shoeid: int):
-    query = ("SELECT * FROM consultations WHERE customerid = %s AND shoeid = %s")
-    cursor.execute(query, (customerid, shoeid))
+async def read_customer_consultations(userid: int, shoeid: int):
+    query = ("SELECT * FROM consultations WHERE userid = %s AND shoeid = %s")
+    cursor.execute(query, (userid, shoeid))
     result = cursor.fetchall()
     if result :
         consultations = []
@@ -34,20 +34,20 @@ async def read_customer_consultations(customerid: int, shoeid: int):
         return "No matching consultations found."
     
 @router.post('/consultations')
-async def add_consultation(customerid: int, shoeid: int, user: Annotated[User, Depends(get_current_user)]):
-    if user[8] != "Admin" :
+async def add_consultation(userid: int, shoeid: int, user: Annotated[User, Depends(get_current_user)]):
+    if user[8].lower() != "admin" :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an admin.")
-    query = ("SELECT * FROM consultations WHERE customerid = %s AND shoeid = %s")
-    cursor.execute(query, (customerid, shoeid))
+    query = ("SELECT * FROM consultations WHERE userid = %s AND shoeid = %s")
+    cursor.execute(query, (userid, shoeid))
     result = cursor.fetchall()
     if result :
-        return "Consultation for Customer ID "+str(customerid)+" and Shoe ID "+str(shoeid)+" exists."
+        return "Consultation for User ID "+str(userid)+" and Shoe ID "+str(shoeid)+" exists."
     else :
-        query = ("SELECT * FROM customers WHERE customerid = %s")
-        cursor.execute(query, (customerid,))
+        query = ("SELECT * FROM users WHERE userid = %s")
+        cursor.execute(query, (userid,))
         result = cursor.fetchall()
         if not result :
-            return "Customer ID "+str(customerid)+" does not exist."
+            return "User ID "+str(userid)+" does not exist."
         else :
             query = ("SELECT * FROM shoes WHERE shoeid = %s")
             cursor.execute(query, (shoeid,))
@@ -77,15 +77,15 @@ async def add_consultation(customerid: int, shoeid: int, user: Annotated[User, D
 
                         productid = product[0]
                         consultdate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        query = ("INSERT INTO consultations (consultationid, customerid, shoeid, productid, consultdate) VALUES (%s, %s, %s, %s, %s)")
-                        cursor.execute(query, (consultationid, customerid, shoeid, productid, consultdate))
+                        query = ("INSERT INTO consultations (consultationid, userid, shoeid, productid, consultdate) VALUES (%s, %s, %s, %s, %s)")
+                        cursor.execute(query, (consultationid, userid, shoeid, productid, consultdate))
                         conn.commit()
                         consultationid += 1
-                    return "Consultation for Customer ID "+str(customerid)+" and Shoe ID "+str(shoeid)+" added."
+                    return "Consultation for User ID "+str(userid)+" and Shoe ID "+str(shoeid)+" added."
                 
 @router.delete('/consultations/{consultationid}')
 async def delete_consultation(consultationid: int, user: Annotated[User, Depends(get_current_user)]):
-    if user[8] != "Admin" :
+    if user[8].lower() != "admin" :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an admin.")
     query = ("SELECT * FROM consultations WHERE consultationid = %s")
     cursor.execute(query, (consultationid,))

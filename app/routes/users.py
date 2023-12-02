@@ -4,6 +4,9 @@ from ..models.users import User
 from ..database import cursor, conn
 from ..oauth2 import get_current_user
 from ..password import hash_password
+import requests
+
+accesstoken = ""
 
 router = APIRouter(
     prefix='/users',
@@ -14,7 +17,7 @@ users = {}
 
 @router.get('/users')
 async def read_all_users(user: Annotated[User, Depends(get_current_user)]):
-    if user[8] != "Admin" :
+    if user[8].lower() != "admin" :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an admin.")
     query = ("SELECT * FROM users")
     cursor.execute(query)
@@ -23,7 +26,7 @@ async def read_all_users(user: Annotated[User, Depends(get_current_user)]):
 
 @router.get('/users/{userid}')
 async def read_user(userid: int, user: Annotated[User, Depends(get_current_user)]):
-    if user[8] != "Admin" and user[0] != userid :
+    if user[8].lower() != "admin" and user[0] != userid :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not authorized to access this user.")
     query = ("SELECT * FROM users WHERE userid = %s")
     cursor.execute(query, (userid,))
@@ -58,14 +61,36 @@ async def register_user(firstname: str, lastname: str, phonenumber: str, address
         if result :
             return "Username "+username+" already exists."
         else :
+            if (role.lower() != "admin" and role.lower() != "customer") :
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Role must be either admin or customer.")
             query = ("INSERT INTO users (userid, firstname, lastname, phonenumber, address, email, password, username, role) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
             cursor.execute(query, (userid, firstname, lastname, phonenumber, address, email, hash_password(password), username, role))
             conn.commit()
-            return "User ID "+str(userid)+" added."
+
+            url = "http://localhost:3000/user"
+
+            headers = {
+                'accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+
+            data = {
+                'name': firstname,
+                'password': password,
+                'role': role,
+                'username': username
+            }
+
+            response = requests.post(url, headers=headers, json=data)
+            print(response.text)
+            if response.status_code == 200 :
+                raise HTTPException(status_code=status.HTTP_201_CREATED, detail="User ID "+str(userid)+" added.")
+            else :
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Could not add user.")
         
 @router.put('/users/{userid}')
 async def update_user(userid: int, firstname: str, lastname: str, phonenumber: str, address: str, email: str, password: str, username: str, role: str, user: Annotated[User, Depends(get_current_user)]):
-    if user[8] != "Admin" and user[0] != userid :
+    if user[8].lower() != "admin" and user[0] != userid :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not authorized to update this user.")
     query = ("SELECT * FROM users WHERE userid = %s")
     cursor.execute(query, (userid,))
@@ -73,26 +98,17 @@ async def update_user(userid: int, firstname: str, lastname: str, phonenumber: s
     if not result :
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
     else :
-        query = ("SELECT * FROM users WHERE email = %s")
-        cursor.execute(query, (email,))
-        result = cursor.fetchall()
-        if result :
-            return "Email "+email+" already exists."
-        else :
-            query = ("SELECT * FROM users WHERE username = %s")
-            cursor.execute(query, (username,))
-            result = cursor.fetchall()
-            if result :
-                return "Username "+username+" already exists."
-            else :
-                query = ("UPDATE users SET firstname = %s, lastname = %s, phonenumber = %s, address = %s, email = %s, password = %s, username = %s, role = %s WHERE userid = %s")
-                cursor.execute(query, (firstname, lastname, phonenumber, address, email, hash_password(password), username, role, userid))
-                conn.commit()
-                return "User ID "+str(userid)+" updated."
+        if (role.lower() != "admin" and role.lower() != "customer") :
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Role must be either admin or customer.")
+        
+        query = ("UPDATE users SET firstname = %s, lastname = %s, phonenumber = %s, address = %s, email = %s, password = %s, username = %s, role = %s WHERE userid = %s")
+        cursor.execute(query, (firstname, lastname, phonenumber, address, email, hash_password(password), username, role, userid))
+        conn.commit()
+        return "User ID "+str(userid)+" updated."
             
 @router.delete('/users/{userid}')
 async def delete_user(userid: int, user: Annotated[User, Depends(get_current_user)]):
-    if user[8] != "Admin":
+    if user[8].lower() != "admin":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an admin.")
     query = ("SELECT * FROM users WHERE userid = %s")
     cursor.execute(query, (userid,))

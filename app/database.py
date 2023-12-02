@@ -3,7 +3,7 @@ from mysql.connector import errorcode
 
 config = {
     'host' : 'shoewizardsdb.mysql.database.azure.com',
-    'user' : 'sqladmin',
+    'user' : '**********',
     'password' : '**********',
     'database' : 'shoewizardsdb',
     'client_flags' : [mysql.connector.ClientFlag.SSL],
