@@ -67,7 +67,7 @@ async def register_user(firstname: str, lastname: str, phonenumber: str, address
             cursor.execute(query, (userid, firstname, lastname, phonenumber, address, email, hash_password(password), username, role))
             conn.commit()
 
-            url = "http://localhost:3000/user"
+            url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/user"
 
             headers = {
                 'accept': 'application/json',

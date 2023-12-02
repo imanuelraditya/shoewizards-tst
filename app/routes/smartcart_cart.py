@@ -25,7 +25,7 @@ async def get_info_cart(user: Annotated[User, Depends(get_current_user)]):
 
         print(smartcarttoken)
 
-        url = "http://localhost:3000/cart"
+        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/cart"
 
         headers = {
             "Content-Type": "application/json",
@@ -49,7 +49,7 @@ async def assign_cart(user: Annotated[User, Depends(get_current_user)]):
 
         print(smartcarttoken)
 
-        url = "http://localhost:3000/cart"
+        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/cart"
 
         headers = {
             "Content-Type": "application/json",
@@ -69,7 +69,7 @@ async def add_item_to_cart(id_product: int, user: Annotated[User, Depends(get_cu
     else :
         smartcarttoken = user[9]
 
-        url = "http://localhost:3000/cart"
+        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/cart"
 
         headers = {
             "Content-Type": "application/json",
@@ -94,7 +94,7 @@ async def delete_user_cart(user: Annotated[User, Depends(get_current_user)]):
 
     smartcarttoken = user[9]
 
-    url = f"http://localhost:3000/cart" 
+    url = f"http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/cart" 
 
     headers = {
         "Content-Type": "application/json",

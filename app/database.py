@@ -3,8 +3,8 @@ from mysql.connector import errorcode
 
 config = {
     'host' : 'shoewizardsdb.mysql.database.azure.com',
-    'user' : '**********',
-    'password' : '**********',
+    'user' : 'sqladmin',
+    'password' : 'Triguna1956',
     'database' : 'shoewizardsdb',
     'client_flags' : [mysql.connector.ClientFlag.SSL],
     'ssl_ca' : './ssl/DigiCertGlobalRootG2.crt.pem'
