@@ -25,7 +25,7 @@ async def get_product(user: Annotated[User, Depends(get_current_user)]):
 
         print(smartcarttoken)
 
-        url = "http://localhost:3000/product"
+        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/product"
 
         headers = {
             "Content-Type": "application/json",
@@ -47,7 +47,7 @@ async def get_detail_product(name_product: int, user: Annotated[User, Depends(ge
 
         print(smartcarttoken)
 
-        url = "http://localhost:3000/product/" + str(name_product)
+        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/product/" + str(name_product)
 
         headers = {
             "Content-Type": "application/json",
@@ -69,7 +69,7 @@ async def add_product(name_product: str, price: int, stock: int, user: Annotated
 
         print(smartcarttoken)
 
-        url = "http://localhost:3000/product"
+        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/product"
 
         headers = {
             "Content-Type": "application/json",
@@ -97,7 +97,7 @@ async def update_product(id_product: int, name_product: str, price: int, stock: 
 
         print(smartcarttoken)
 
-        url = "http://localhost:3000/product/" + str(id_product)
+        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/product/" + str(id_product)
 
         headers = {
             "Content-Type": "application/json",
@@ -125,7 +125,7 @@ async def delete_product(id_product: int, user: Annotated[User, Depends(get_curr
 
         print(smartcarttoken)
 
-        url = "http://localhost:3000/product/" + str(id_product)
+        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/product/" + str(id_product)
 
         headers = {
             "Content-Type": "application/json",

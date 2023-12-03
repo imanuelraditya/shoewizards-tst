@@ -64,7 +64,7 @@ async def register_user(firstname: str, lastname: str, phonenumber: str, address
             if (role.lower() != "admin" and role.lower() != "customer") :
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Role must be either admin or customer.")
             else :
-                url = "http://localhost:3000/user"
+                url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/user"
 
                 headers = {
                     'accept': 'application/json',
@@ -119,7 +119,7 @@ async def delete_user(userid: int, user: Annotated[User, Depends(get_current_use
         username = result[0][7]
         smartcarttoken = user[9]
 
-        url = "http://localhost:3000/user/"+username
+        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/user/"+username
 
         headers = {
             "Content-Type": "application/json",
