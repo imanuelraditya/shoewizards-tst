@@ -7,8 +7,8 @@ from ..oauth2 import get_current_user
 import requests
 
 router = APIRouter(
-    prefix='/transaction',
-    tags=['Transaction']
+    prefix='/smartcart-transaction',
+    tags=['SmartCart Transaction']
 )
 
 transaction = {}
@@ -25,7 +25,7 @@ async def get_information_transaction(name_product: str, user: Annotated[User, D
 
         print(smartcarttoken)
 
-        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/detail_transaction/"
+        url = "http://localhost:3000/detail_transaction/"
 
         headers = {
             "Content-Type": "application/json",
@@ -52,7 +52,7 @@ async def get_detail_transaction(id_product: int, user: Annotated[User, Depends(
 
         print(smartcarttoken)
 
-        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/detail_transaction/" + str(id_product)
+        url = "http://localhost:3000/detail_transaction/" + str(id_product)
 
         headers = {
             "Content-Type": "application/json",
@@ -78,7 +78,7 @@ async def create_transaction(user: Annotated[User, Depends(get_current_user)]):
 
         print(smartcarttoken)
 
-        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/transaction"
+        url = "http://localhost:3000/transaction"
 
         headers = {
             "Content-Type": "application/json",

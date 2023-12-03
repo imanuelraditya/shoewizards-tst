@@ -14,7 +14,18 @@ router = APIRouter(
 consultations = {}
 
 @router.get('/consultations')
-async def read_customer_consultations(userid: int, shoeid: int):
+async def read_customer_consultations(userid: int, shoeid: int, user: Annotated[User, Depends(get_current_user)]):
+    if user[0] != userid :
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You can not consult for other users")
+    
+    query = ("SELECT * FROM shoes WHERE shoeid = %s")
+    cursor.execute(query, (shoeid,))
+    result = cursor.fetchall()
+    if not result :
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shoe not found.")
+    elif result[0][6] != user[0] :
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You can not consult for other users' shoes")
+    
     query = ("SELECT * FROM consultations WHERE userid = %s AND shoeid = %s")
     cursor.execute(query, (userid, shoeid))
     result = cursor.fetchall()
@@ -35,8 +46,17 @@ async def read_customer_consultations(userid: int, shoeid: int):
     
 @router.post('/consultations')
 async def add_consultation(userid: int, shoeid: int, user: Annotated[User, Depends(get_current_user)]):
-    if user[8].lower() != "admin" :
+    if user[0] != userid :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an admin.")
+    
+    query = ("SELECT * FROM shoes WHERE shoeid = %s")
+    cursor.execute(query, (shoeid,))
+    result = cursor.fetchall()
+    if not result :
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shoe not found.")
+    elif result[0][6] != user[0] :
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You can not consult for other users' shoes")
+    
     query = ("SELECT * FROM consultations WHERE userid = %s AND shoeid = %s")
     cursor.execute(query, (userid, shoeid))
     result = cursor.fetchall()

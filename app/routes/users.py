@@ -63,30 +63,30 @@ async def register_user(firstname: str, lastname: str, phonenumber: str, address
         else :
             if (role.lower() != "admin" and role.lower() != "customer") :
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Role must be either admin or customer.")
-            query = ("INSERT INTO users (userid, firstname, lastname, phonenumber, address, email, password, username, role) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
-            cursor.execute(query, (userid, firstname, lastname, phonenumber, address, email, hash_password(password), username, role))
-            conn.commit()
-
-            url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/user"
-
-            headers = {
-                'accept': 'application/json',
-                'Content-Type': 'application/json',
-            }
-
-            data = {
-                'name': firstname,
-                'password': password,
-                'role': role,
-                'username': username
-            }
-
-            response = requests.post(url, headers=headers, json=data)
-            print(response.text)
-            if response.status_code == 200 :
-                raise HTTPException(status_code=status.HTTP_201_CREATED, detail="User ID "+str(userid)+" added.")
             else :
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Could not add user.")
+                url = "http://localhost:3000/user"
+
+                headers = {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+
+                data = {
+                    'name': firstname,
+                    'password': password,
+                    'role': role,
+                    'username': username
+                }
+
+                response = requests.post(url, headers=headers, json=data)
+                print(response.text)
+                if response.status_code == 200 :
+                    query = ("INSERT INTO users (userid, firstname, lastname, phonenumber, address, email, password, username, role) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                    cursor.execute(query, (userid, firstname, lastname, phonenumber, address, email, hash_password(password), username, role))
+                    conn.commit()
+                    raise HTTPException(status_code=status.HTTP_201_CREATED, detail="User ID "+str(userid)+" added.")
+                else :
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Could not add user.")
         
 @router.put('/users/{userid}')
 async def update_user(userid: int, firstname: str, lastname: str, phonenumber: str, address: str, email: str, password: str, username: str, role: str, user: Annotated[User, Depends(get_current_user)]):
@@ -116,7 +116,31 @@ async def delete_user(userid: int, user: Annotated[User, Depends(get_current_use
     if not result :
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
     else :
+        username = result[0][7]
+        smartcarttoken = user[9]
+
+        url = "http://localhost:3000/user/"+username
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + smartcarttoken
+        }
+
+        response = requests.delete(url, headers=headers)
+        print(response.text)
+
         query = ("DELETE FROM users WHERE userid = %s")
         cursor.execute(query, (userid,))
         conn.commit()
-        return "User ID "+str(userid)+" deleted."
+
+        if response.status_code == 200 :
+            query = ("DELETE FROM users WHERE userid = %s")
+            cursor.execute(query, (userid,))
+            conn.commit()
+            return "User ID "+str(userid)+" deleted."
+        elif response.status_code == 401 :
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User unauthorized.")
+        elif response.status_code == 400 :
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Could not delete user.")
+        else :
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Token expired.")

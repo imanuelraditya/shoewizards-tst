@@ -8,6 +8,7 @@ from app.routes import auth
 from app import oauth2
 from app.routes import smartcart_cart
 from app.routes import smartcart_transaction
+from app.routes import smartcart_product
 
 app = FastAPI()
 
@@ -19,3 +20,4 @@ app.include_router(shoes.router)
 app.include_router(products.router)
 app.include_router(smartcart_cart.router)
 app.include_router(smartcart_transaction.router)
+app.include_router(smartcart_product.router)

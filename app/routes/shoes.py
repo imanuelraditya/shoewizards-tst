@@ -13,26 +13,29 @@ router = APIRouter(
 shoes = {}
 
 @router.get('/shoes')
-async def read_all_shoes():
+async def read_all_shoes(user: Annotated[User, Depends(get_current_user)]):
+    if user[8].lower() != "admin" :
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an admin.")
     query = ("SELECT * FROM shoes")
     cursor.execute(query)
     result = cursor.fetchall()
     return result
 
 @router.get('/shoes/{shoeid}')
-async def read_shoe(shoeid: int):
+async def read_shoe(shoeid: int, user: Annotated[User, Depends(get_current_user)]):
     query = ("SELECT * FROM shoes WHERE shoeid = %s")
     cursor.execute(query, (shoeid,))
     result = cursor.fetchall()
     if not result :
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shoe not found.")
     else :
-        return result[0]
+        if result[0][6] != user[0] :
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You can not access other users' shoes")
+        else :
+            return result[0]
 
 @router.post('/shoes')
 async def add_shoe(shoetype: str, shoesize: str, shoecolor: str, shoebrand: str, initialcondition: str, user: Annotated[User, Depends(get_current_user)]):
-    if user[8].lower() != "admin" :
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an admin.")
     query = ("SELECT * FROM shoes")
     cursor.execute(query)
     result = cursor.fetchall()
