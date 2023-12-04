@@ -4,6 +4,7 @@ from ..models.users import User
 from ..database import cursor, conn
 from ..oauth2 import get_current_user
 from ..password import hash_password
+from typing import Optional
 import requests
 
 accesstoken = ""
@@ -37,7 +38,7 @@ async def read_user(userid: int, user: Annotated[User, Depends(get_current_user)
         return result[0]
 
 @router.post('/users')
-async def register_user(firstname: str, lastname: str, phonenumber: str, address: str, email: str, password: str, username: str, role: str):
+async def register_user(firstname: str, lastname: str, phonenumber: str, address: str, email: str, password: str, username: str, role: str, flag: Optional[bool] = True):
     query = ("SELECT * FROM users")
     cursor.execute(query)
     result = cursor.fetchall()
@@ -64,29 +65,35 @@ async def register_user(firstname: str, lastname: str, phonenumber: str, address
             if (role.lower() != "admin" and role.lower() != "customer") :
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Role must be either admin or customer.")
             else :
-                url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/user"
+                if flag :       
+                    url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/user"
 
-                headers = {
-                    'accept': 'application/json',
-                    'Content-Type': 'application/json',
-                }
+                    headers = {
+                        "accept": "application/json",
+                        'Content-Type': 'application/json',
+                    }
 
-                data = {
-                    'name': firstname,
-                    'password': password,
-                    'role': role,
-                    'username': username
-                }
+                    data = {
+                        'name': firstname,
+                        'password': password,
+                        'username': username,
+                        'store_id' : 'B'
+                    }
 
-                response = requests.post(url, headers=headers, json=data)
-                print(response.text)
-                if response.status_code == 200 :
+                    response = requests.post(url, headers=headers, params=data)
+                    print(response.text)
+                    if response.status_code == 200 :
+                        query = ("INSERT INTO users (userid, firstname, lastname, phonenumber, address, email, password, username, role) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                        cursor.execute(query, (userid, firstname, lastname, phonenumber, address, email, hash_password(password), username, role))
+                        conn.commit()
+                        raise HTTPException(status_code=status.HTTP_201_CREATED, detail="User ID "+str(userid)+" added.")
+                    else :
+                        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Could not add user.")
+                else :
                     query = ("INSERT INTO users (userid, firstname, lastname, phonenumber, address, email, password, username, role) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
                     cursor.execute(query, (userid, firstname, lastname, phonenumber, address, email, hash_password(password), username, role))
                     conn.commit()
                     raise HTTPException(status_code=status.HTTP_201_CREATED, detail="User ID "+str(userid)+" added.")
-                else :
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Could not add user.")
         
 @router.put('/users/{userid}')
 async def update_user(userid: int, firstname: str, lastname: str, phonenumber: str, address: str, email: str, password: str, username: str, role: str, user: Annotated[User, Depends(get_current_user)]):
@@ -128,10 +135,6 @@ async def delete_user(userid: int, user: Annotated[User, Depends(get_current_use
 
         response = requests.delete(url, headers=headers)
         print(response.text)
-
-        query = ("DELETE FROM users WHERE userid = %s")
-        cursor.execute(query, (userid,))
-        conn.commit()
 
         if response.status_code == 200 :
             query = ("DELETE FROM users WHERE userid = %s")

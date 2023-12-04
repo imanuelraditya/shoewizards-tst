@@ -50,13 +50,13 @@ async def add_shoe(shoetype: str, shoesize: str, shoecolor: str, shoebrand: str,
     if (shoetype.lower() != "sneakers" and shoetype.lower() != "loafers" and shoetype.lower() != "flip-flops") :
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Shoe type must be either sneakers, loafers, or flip-flops.")
     
-    query = ("INSERT INTO shoes (shoeid, shoetype, shoesize, shoecolor, shoebrand, initialcondition) VALUES (%s, %s, %s, %s, %s, %s)")
-    cursor.execute(query, (shoeid, shoetype, shoesize, shoecolor, shoebrand, initialcondition))
+    query = ("INSERT INTO shoes (shoeid, shoetype, shoesize, shoecolor, shoebrand, initialcondition, userid) VALUES (%s, %s, %s, %s, %s, %s, %s)")
+    cursor.execute(query, (shoeid, shoetype, shoesize, shoecolor, shoebrand, initialcondition, user[0]))
     conn.commit()
     return "Shoe ID "+str(shoeid)+" added."
 
 @router.put('/shoes/{shoeid}')
-async def update_shoe(shoeid: int, shoetype: str, shoesize: str, shoecolor: str, shoebrand: str, initialcondition: str, user: Annotated[User, Depends(get_current_user)]):
+async def update_shoe(shoeid: int, shoetype: str, shoesize: str, shoecolor: str, shoebrand: str, initialcondition: str, userid: str, user: Annotated[User, Depends(get_current_user)]):
     if user[8].lower() != "admin" :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an admin.")
     query = ("SELECT * FROM shoes WHERE shoeid = %s")
@@ -68,8 +68,8 @@ async def update_shoe(shoeid: int, shoetype: str, shoesize: str, shoecolor: str,
         if (shoetype.lower() != "sneakers" and shoetype.lower() != "loafers" and shoetype.lower() != "flip-flops") :
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Shoe type must be either sneakers, loafers, or flip-flops.")
         
-        query = ("UPDATE shoes SET shoetype = %s, shoesize = %s, shoecolor = %s, shoebrand = %s, initialcondition = %s WHERE shoeid = %s")
-        cursor.execute(query, (shoetype, shoesize, shoecolor, shoebrand, initialcondition, shoeid))
+        query = ("UPDATE shoes SET shoetype = %s, shoesize = %s, shoecolor = %s, shoebrand = %s, initialcondition = %s, userid = %s WHERE shoeid = %s")
+        cursor.execute(query, (shoetype, shoesize, shoecolor, shoebrand, initialcondition, userid, shoeid))
         conn.commit()
         return "Shoe ID "+str(shoeid)+" updated."
     
