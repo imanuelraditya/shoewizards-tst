@@ -5,8 +5,11 @@ Namun, agar layanan ini bisa memberikan fungsionalitas yang lebih menyeluruh, ma
 
 # URL Link
 API Documentation	: https://shoewizardsdb.azurewebsites.net/
+
 Github Backend	: https://github.com/imanuelraditya/shoewizards-tst
+
 Github Frontend	: https://github.com/imanuelraditya/shoewizards-tst-frontend
+
 Website	: https://shoewizards-tst-frontend-git-main-imanuelradityas-projects.vercel.app/
 
 # Tech Stack Backend
