@@ -27,7 +27,7 @@ async def get_info_cart(user: Annotated[User, Depends(get_current_user)]):
 
         print(smartcarttoken)
 
-        url = "https://smartcartchatbot.azurewebsites.net/cart"
+        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/cart"
 
         headers = {
             "Content-Type": "application/json",
@@ -42,7 +42,7 @@ async def get_info_cart(user: Annotated[User, Depends(get_current_user)]):
             if len(inner_list) == 4:
                 product_id = inner_list[2]
 
-                url = "https://smartcartchatbot.azurewebsites.net/product/"
+                url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/product/"
 
                 headers = {
                     "Content-Type": "application/json",
@@ -80,7 +80,7 @@ async def add_item_to_cart(id_product: int, user: Annotated[User, Depends(get_cu
     else :
         smartcarttoken = user[9]
 
-        url = "https://smartcartchatbot.azurewebsites.net/detail_cart"
+        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/detail_cart"
 
         headers = {
             "Content-Type": "application/json",
@@ -105,7 +105,7 @@ async def remove_item_from_cart(id_product: int, user: Annotated[User, Depends(g
     else :
         smartcarttoken = user[9]
 
-        url = "https://smartcartchatbot.azurewebsites.net/detail_cart"
+        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/detail_cart"
 
         headers = {
             "Content-Type": "application/json",

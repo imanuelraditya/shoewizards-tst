@@ -51,7 +51,7 @@ async def checkout_consultation(userid: int, shoeid: int, user: Annotated[User, 
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You can not consult for other users")
     smartcarttoken = user[9]
 
-    url = "https://smartcartchatbot.azurewebsites.net/cart"
+    url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/cart"
 
     headers = {
         "Content-Type": "application/json",
@@ -83,7 +83,7 @@ async def checkout_consultation(userid: int, shoeid: int, user: Annotated[User, 
                     return "No matching products found."
                 else :
                     productname = result[0][1]
-                    url = "https://smartcartchatbot.azurewebsites.net/product"
+                    url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/product"
 
                     headers = {
                         "Content-Type": "application/json",
@@ -99,7 +99,7 @@ async def checkout_consultation(userid: int, shoeid: int, user: Annotated[User, 
 
                                 print(id_product)
 
-                                url = "https://smartcartchatbot.azurewebsites.net/detail_cart"
+                                url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/detail_cart"
 
                                 headers = {
                                     "Content-Type": "application/json",

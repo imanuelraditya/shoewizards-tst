@@ -21,7 +21,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], flag
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password.")
     else :
         if flag :
-            url = "https://smartcartchatbot.azurewebsites.net/auth/token"
+            url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/auth/token"
             data = {
                     'grant_type': '',
                     'username': form_data.username,
