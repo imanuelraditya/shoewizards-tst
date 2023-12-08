@@ -26,7 +26,7 @@ async def get_information_transaction(user: Annotated[User, Depends(get_current_
         username = user[7]
         smartcarttoken = user[9]
 
-        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/transaction/" + username
+        url = "https://smartcartchatbot.azurewebsites.net/transaction/" + username
 
         headers = {
             "Content-Type": "application/json",
@@ -44,7 +44,7 @@ async def get_information_transaction(user: Annotated[User, Depends(get_current_
 
                 print(smartcarttoken)
 
-                url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/detail_transaction/"
+                url = "https://smartcartchatbot.azurewebsites.net/detail_transaction/"
 
                 headers = {
                     "Content-Type": "application/json",
@@ -61,7 +61,7 @@ async def get_information_transaction(user: Annotated[User, Depends(get_current_
                         print(transaction_id)
                         product_id = inner_list[2]
 
-                        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/product/"
+                        url = "https://smartcartchatbot.azurewebsites.net/product/"
 
                         headers = {
                             "Content-Type": "application/json",
@@ -101,7 +101,7 @@ async def create_transaction(user: Annotated[User, Depends(get_current_user)]):
 
         print(smartcarttoken)
 
-        url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/transaction"
+        url = "https://smartcartchatbot.azurewebsites.net/transaction"
 
         headers = {
             "Content-Type": "application/json",
