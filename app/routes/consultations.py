@@ -5,6 +5,7 @@ from ..models.users import User
 from ..models.consultations import Consultation
 from ..database import cursor, conn
 from ..oauth2 import get_current_user
+import requests
 
 router = APIRouter(
     prefix='/consultations',
@@ -43,6 +44,82 @@ async def read_customer_consultations(userid: int, shoeid: int, user: Annotated[
         return "Based on your consultation, we recommend the following products: " + ", ".join(consultations)
     else :
         return "No matching consultations found."
+    
+@router.post('/checkout_consultation')
+async def checkout_consultation(userid: int, shoeid: int, user: Annotated[User, Depends(get_current_user)]):
+    if user[0] != userid :
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You can not consult for other users")
+    smartcarttoken = user[9]
+
+    url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/cart"
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + smartcarttoken
+    }
+
+    response = requests.put(url, headers=headers)
+
+    if response.status_code == 200 :
+        query = ("SELECT * FROM shoes WHERE shoeid = %s")
+        cursor.execute(query, (shoeid,))
+        result = cursor.fetchall()
+        if not result :
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shoe not found.")
+        elif result[0][6] != user[0] :
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You can not consult for other users' shoes")
+
+        query = ("SELECT * FROM consultations WHERE userid = %s AND shoeid = %s")
+        cursor.execute(query, (userid, shoeid))
+        result = cursor.fetchall()
+        if result :
+            for consultation in result:
+                productid = consultation[3]
+                
+                query = ("SELECT * FROM products WHERE productid = %s")
+                cursor.execute(query, (productid,))
+                result = cursor.fetchall()
+                if not result :
+                    return "No matching products found."
+                else :
+                    productname = result[0][1]
+                    url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/product"
+
+                    headers = {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + smartcarttoken
+                    }
+
+                    response = requests.get(url, headers=headers)
+                    if response.status_code == 200 :
+                        products = response.json()
+                        for product in products:
+                            if product[1] == productname :
+                                id_product = product[0]
+
+                                print(id_product)
+
+                                url = "http://smartcart3.dpabdmdug3daatbx.southeastasia.azurecontainer.io/detail_cart"
+
+                                headers = {
+                                    "Content-Type": "application/json",
+                                    "Authorization": "Bearer " + smartcarttoken
+                                }
+
+                                data = {
+                                    "id_product": id_product,
+                                    "addClick": 'true'
+                                }
+
+                                response = requests.post(url, headers=headers, params=data)
+                                print(response.json())
+                    else :
+                        return response.json()
+            return consultations
+        else :
+            return "No matching consultations found."
+    else :
+        return response.json()
     
 @router.post('/consultations')
 async def add_consultation(userid: int, shoeid: int, user: Annotated[User, Depends(get_current_user)]):

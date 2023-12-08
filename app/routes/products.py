@@ -30,7 +30,7 @@ async def read_product(productid: int):
         return "Product ID "+str(productid)+" does not exist."
     
 @router.post('/products')
-async def add_product(producttype: str, productbrand: str, productcolor: str, productsize: int, productcondition: str, user: Annotated[User, Depends(get_current_user)]):
+async def add_product(productname: str, productdescription: str, price: float, stock: int, producttype: str, user: Annotated[User, Depends(get_current_user)]):
     if user[8].lower() != "admin" :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an admin.")
     query = ("SELECT * FROM products")
@@ -44,21 +44,27 @@ async def add_product(producttype: str, productbrand: str, productcolor: str, pr
         result = cursor.fetchall()
         productid = result[0][0] + 1
 
-    query = ("INSERT INTO products (productid, producttype, productbrand, productcolor, productsize, productcondition) VALUES (%s, %s, %s, %s, %s, %s)")
-    cursor.execute(query, (productid, producttype, productbrand, productcolor, productsize, productcondition))
+    if (producttype.lower() != "sneakers" and producttype.lower() != "loafers" and producttype.lower() != "flip-flops") :
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product type must be either sneakers, loafers, or flip-flops.")
+    
+    query = ("INSERT INTO products (productid, productname, productdescription, price, stock, producttype) VALUES (%s, %s, %s, %s, %s, %s)")
+    cursor.execute(query, (productid, productname, productdescription, price, stock, producttype))
     conn.commit()
     return "Product ID "+str(productid)+" added."
 
 @router.put('/products/{productid}')
-async def update_product(productid: int, producttype: str, productbrand: str, productcolor: str, productsize: int, productcondition: str, user: Annotated[User, Depends(get_current_user)]):
+async def update_product(productid: int, productname: str, productdescription: str, price: float, stock: int, producttype: str, user: Annotated[User, Depends(get_current_user)]):
     if user[8].lower() != "admin" :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an admin.")
     query = ("SELECT * FROM products WHERE productid = %s")
     cursor.execute(query, (productid,))
     result = cursor.fetchall()
     if result :
-        query = ("UPDATE products SET producttype = %s, productbrand = %s, productcolor = %s, productsize = %s, productcondition = %s WHERE productid = %s")
-        cursor.execute(query, (producttype, productbrand, productcolor, productsize, productcondition, productid))
+        if (producttype.lower() != "sneakers" and producttype.lower() != "loafers" and producttype.lower() != "flip-flops") :
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product type must be either sneakers, loafers, or flip-flops.")
+        
+        query = ("UPDATE products SET productname = %s, productdescription = %s, price = %s, stock = %s, producttype = %s WHERE productid = %s")
+        cursor.execute(query, (productname, productdescription, price, stock, producttype, productid))
         conn.commit()
         return "Product ID "+str(productid)+" updated."
     else :
